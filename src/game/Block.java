@@ -41,7 +41,6 @@ public class Block extends JLabel {
 		block.setLocation(0,0);
 		
 		add(block);
-		
 	}
 	
 	public void fall() {

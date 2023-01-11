@@ -1,5 +1,6 @@
 package game;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -13,11 +14,11 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 //게임이 진행될 프레임 생성
 public class GameFrame extends JFrame {
-	
 	//게임을 총괄 관리하는 스레드
 	private GameManageThread gameManagerThread;
 	//블록 생성하는 스레드
@@ -49,13 +50,9 @@ public class GameFrame extends JFrame {
 		return this.blockStatus;
 	}
 
-	
+	//음악을 관리하는 클래스
 	private Music music;
 	
-	
-//	//생성할 블록을 보관할 벡터 => 벡터는 최대 100개까지 보관 가능함
-//	private Vector<Block> blockVector = new Vector<Block>(100);
-//	
 	//지워야할 벡터의 좌표를 보관할 벡터
 	private Vector<Point> eraseVector = new Vector<Point>();
 	
@@ -122,8 +119,14 @@ public class GameFrame extends JFrame {
 	public GameFrame() {
 		setTitle("이상한 테트리스");
 		setLayout(null);
-		setSize(800,538);
+		setSize(790,538);
 		setVisible(true);
+		
+		//아이콘 설정
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+	    Image img = toolkit.getImage("tetris.png");
+	    setIconImage(img);
+		
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); //x버튼을 눌러 프로그램을 종료하도록
 	    //프레임이 생성될 위치를 지정(게임 화면 위치)
@@ -183,9 +186,31 @@ public class GameFrame extends JFrame {
 		//레벨 표시용 라벨
 		private JLabel levelLabel;
 		
+		//캐릭터 표시용 라벨
+		private JLabel characterLabel;
+		
+		//게임 오버 표시용 라벨
+		private class GameOverLabel extends JLayeredPane{
+			//게임 오버 이미지
+			private ImageIcon gameOverImageIcon = new ImageIcon("gameOverImage.png");
+			private Image image = gameOverImageIcon.getImage();
+			
+			@Override
+			public void paint(Graphics g) {
+				super.paint(g);
+				g.drawImage(image,0,0,gameOverImageIcon.getIconWidth(),gameOverImageIcon.getIconHeight(),null);
+			}
+		}
+		
+		private GameOverLabel gameOverLabel;
+		
+		
 		//배경 이미지
-		private ImageIcon backgroundImageIcon = new ImageIcon("background.png");
+		private ImageIcon backgroundImageIcon = new ImageIcon("background2.png");
 		private Image backgroundImage = backgroundImageIcon.getImage();
+		
+		//캐릭터 이미지
+		private ImageIcon characterIcon = new ImageIcon("character.png");
 		
 		
 		//점수를 증가시킴
@@ -205,31 +230,55 @@ public class GameFrame extends JFrame {
 			setSize(800,500);
 			setVisible(true);
 			
+			//캐릭터 표시용
+			characterLabel = new JLabel(characterIcon);
+			characterLabel.setSize(characterIcon.getIconWidth(),characterIcon.getIconHeight());
+			characterLabel.setLocation(535,300);
+			add(characterLabel);
+			
+			
+			
 			//level단어 표시용
-			JLabel level = new JLabel("Level");
-			level.setFont(new Font("Serif",Font.ITALIC,50));
+			JLabel level = new JLabel("Level : ");
+			level.setFont(new Font("Arial Black",Font.BOLD,35));
 			level.setSize(200,50);
-			level.setLocation(500,100);
+			level.setForeground(Color.WHITE);
+			level.setLocation(545,145);
 			add(level);
 			
 			JLabel score = new JLabel("SCORE");
-			score.setFont(new Font("Serif",Font.ITALIC,50));
-			score.setSize(200,50);
-			score.setLocation(550,0);
+			score.setFont(new Font("Arial Black",Font.BOLD,50));
+			score.setSize(200,80);
+			score.setForeground(Color.WHITE);
+			score.setLocation(540,0);
 			add(score);
 			
 			scoreLabel = new JLabel("0");
-			scoreLabel.setFont(new Font("Serif",Font.ITALIC,50));
+			scoreLabel.setForeground(Color.WHITE);
+			scoreLabel.setFont(new Font("Arial Black",Font.BOLD,40));
 			scoreLabel.setSize(400,50);
-			scoreLabel.setLocation(600,50);
+			scoreLabel.setLocation(545,70);
 			add(scoreLabel);
 			
 			//레벨 표시용 라벨
 			levelLabel = new JLabel("1");
-			levelLabel.setFont(new Font("Serif",Font.ITALIC,50));
+			levelLabel.setFont(new Font("Arial Black",Font.BOLD,35));
+			levelLabel.setForeground(Color.WHITE);
 			levelLabel.setSize(400,50);
-			levelLabel.setLocation(600,150);
+			levelLabel.setLocation(685,145);
 			add(levelLabel);
+			
+			
+			gameOverLabel = new GameOverLabel();
+//			gameOverLabel.setSize(500,300);
+//			gameOverLabel.setLocation(0,160);
+			add(gameOverLabel);
+			
+//			///
+//			gameOverLabel.setLocation(0,160);
+//			add(gameOverLabel);
+//			///
+			
 			
 			//최초 블록 딜레이는 500밀리초
 			//블록을 생성하는 스레드 작성
@@ -313,6 +362,22 @@ public class GameFrame extends JFrame {
 						//블록 생성 중지
 						spawnThread.interrupt();
 						
+						///
+						
+						//게임 오버 이미지가 뒤에 가려지는 상황을 방지하기 위한 방법 고안할것
+						//LayeredPane을 쓰는방법?
+						
+//						Game gameOver = parent.gameOverLabel;
+//						
+						parent.gameOverLabel.setSize(500,300);
+						parent.gameOverLabel.setLocation(0,160);
+						
+//						gameOver = new JLabel(parent.gameOverImageIcon);
+//						gameOver.setSize(parent.gameOverImageIcon.getIconWidth(),parent.gameOverImageIcon.getIconHeight());
+//						gameOver.setLocation(0,160);
+//						parent.add(gameOver);
+						///
+						
 						check = true;
 						//게임 관리 스레드 종료
 						this.interrupt();	
@@ -351,10 +416,8 @@ public class GameFrame extends JFrame {
 					// TODO Auto-generated catch block
 					break;
 				}
-				
 			}
 		}
-		
 	}
 	
 	//블록을 랜덤으로 생성하여 랜덤한 위치에 보여주는 스레드 => 영역을 나누어 표현해줘야함
@@ -367,6 +430,9 @@ public class GameFrame extends JFrame {
 		
 		private GameRunningPanel parent;
 		
+//		//다음에 보여지게 할 블럭
+//		private int nextBlockType;
+		
 //		//wait-notify 관련 코드
 //		private boolean stopFlag = false; //블록이 생성되는것을 멈추게 하기 위해
 //		
@@ -378,6 +444,19 @@ public class GameFrame extends JFrame {
 //			stopFlag = true;
 //		}
 //		
+		
+//		//다음에 생성할 블록의 타입을 매개변수로 보내어 생성하는 경우
+//		public BlockSpawnThread(GameRunningPanel parent,int delayTime,int nextBlockType){
+//			System.out.println("현재 레벨의 delayTime="+delayTime);
+//			this.delayTime = delayTime;
+//			this.parent = parent;
+//			this.nextBlockType = nextBlockType;
+//			System.out.println("스폰쓰레드 생성됨");
+//			//아직 블록 생성전이므로 block존재상태를 false로 초기화
+//			setBlockStatus(false);
+//		}
+//		
+
 		public BlockSpawnThread(GameRunningPanel parent,int delayTime){
 			System.out.println("현재 레벨의 delayTime="+delayTime);
 			this.delayTime = delayTime;
@@ -419,7 +498,7 @@ public class GameFrame extends JFrame {
 				//변경포인트
 				int x = (int)(Math.random()*10)*50;
 				int y = -50; //위에서 부터 떨어져야 하므로 0에서 부터 시작
-				
+			
 				this.blockType = setBlockType();
 				
 				//블록 생성
@@ -459,7 +538,7 @@ public class GameFrame extends JFrame {
 				int currentLevel = Integer.parseInt(parent.levelLabel.getText());
 				
 				
-				//레벨*100이상이 될때마다 레벨을 올리고, 블록이 떨어지는 속도를 증가시킨다.
+				//레벨*1000이상이 될때마다 레벨을 올리고, 블록이 떨어지는 속도를 증가시킨다.
 				if(currentScore>=1000*currentLevel) {
 					
 					//블록이 떨어지는 시간을 증가시킨다.
@@ -469,7 +548,6 @@ public class GameFrame extends JFrame {
 					//레벨 증가
 					parent.levelLabel.setText(Integer.toString(currentLevel+1));
 				}
-				
 				
 				
 				//생성한 블록라벨을 관리하는 스레드 작동(떨어지게 하는)
@@ -504,41 +582,6 @@ public class GameFrame extends JFrame {
 		private boolean checkFlag = false;
 		
 		private GameRunningPanel parent;
-		
-		
-//		//스레드가 현재 작동중인지 외부에서 확인하도록 하기 위함
-//		public boolean isRun() {
-//			return check;
-//		}
-		
-//		//wait-notify 관련 코드
-//		private boolean stopFlag = false; //블록이 생성되는것을 멈추게 하기 위해
-//		
-//		//현재 stopFlag상태를 리턴 => wait에 활용
-//		public boolean getStopFlag() {return stopFlag;} 
-//		
-//		//블록의 생성을 멈추도록 함
-//		public void stopFalling() {
-//			stopFlag = true;
-//		}
-//		
-//		//블록이 다시 생성되도록 함
-//		synchronized public void resumeFalling() {
-//			stopFlag = false; //블록이 내리는것을 멈추도록
-//			this.notify(); //이 객체를 무한대기하는 쓰레드 깨우기
-//		}
-//		
-//		//flag가 false가 될때까지 기다리는 함수
-//		//wait함수를 쓰기 위해선 synchronized 키워드를 사용해야함
-//		synchronized private void waitFlag() { 
-//			try {
-//				this.wait(); //쓰레드 무한대기 상태로 변경=>notify()가 불려지기전까지
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				System.out.println("is waiting");
-//			} //기다리면서 중단된 상태로
-//		}
-		
 		
 		public FallingThread(Block block,int delayTime,GameRunningPanel parent) {
 			this.parent = parent;
@@ -622,10 +665,14 @@ public class GameFrame extends JFrame {
 					break;
 				}
 				
-
+				
+				//최고 속도는 100ms
+				if(delayTime<=100)
+					delayTime = 100;
+				
 				//딜레이 타임을 걸어줘야함
 				try {
-					Thread.sleep(this.delayTime/3);
+					Thread.sleep(this.delayTime/2);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					break;

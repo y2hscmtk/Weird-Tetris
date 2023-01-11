@@ -41,7 +41,8 @@ public class Music {
     		File audioFile = new File(pathName);
     		AudioInputStream ais = AudioSystem.getAudioInputStream(audioFile);
             clip.open(ais);
-            clip.loop(0);
+            //프로그램을 종료하기전까지 반복재생함
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
         }catch (Exception ex){
         	System.out.println("불러오기 오류");
 	    }
