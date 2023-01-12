@@ -1,5 +1,7 @@
 # WeirdTetris
 
+(프로젝트에 사용된 이미지를 개인 프로젝트에 사용하고 싶다면 메일,등으로 연락해주시길 바랍니다.)
+
 2023년 HSU 프로그래밍 캠프 미니 프로젝트
 
 <img width="583" alt="image3" src="https://user-images.githubusercontent.com/109474668/211725584-6c9bc9bb-15b5-4870-9451-973aa4d1e680.png">
